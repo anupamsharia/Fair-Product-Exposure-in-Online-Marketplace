@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FairCart</title>
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for sleek icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main Style -->
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>FairCart <span class="badge">Admin</span></h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-title="Dashboard" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-link" data-title="Users Management" data-tab="users"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#" class="nav-link" data-title="Seller Approvals" data-tab="seller-approval"><i class="fas fa-user-shield"></i> Seller Approval</a></li>
+                    <li><a href="#" class="nav-link" data-title="Product Approvals" data-tab="product-approval"><i class="fas fa-box-open"></i> Product Approval</a></li>
+                    <li><a href="#" class="nav-link" data-title="Order Management" data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                    <li><a href="#" class="nav-link" data-title="Fairness Monitor" data-tab="fairness"><i class="fas fa-balance-scale"></i> Fairness Monitor</a></li>
+                    <li><a href="#" class="nav-link" data-title="AI Analytics" data-tab="ai-monitor"><i class="fas fa-robot"></i> AI Monitor</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                </div>
+                <div class="header-right">
+                    <div class="dropdown-wrapper">
+                        <button class="icon-btn" id="notif-btn" title="Notifications" style="margin-right: 1rem;">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge-dot" id="notif-dot"></span>
+                        </button>
+                        <button onclick="logout()" class="btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- 1. Dashboard Tab -->
+                <section id="tab-dashboard" class="tab-content active">
+                    <div class="summary-cards">
+                        <div class="glass-card">
+                            <div class="card-icon blue"><i class="fas fa-users"></i></div>
+                            <div class="card-info"><h3>Total Users</h3><h2 id="users">0</h2></div>
+                        </div>
+                        <div class="glass-card">
+                            <div class="card-icon green"><i class="fas fa-shopping-cart"></i></div>
+                            <div class="card-info"><h3>Total Orders</h3><h2 id="orders">0</h2></div>
+                        </div>
+                        <div class="glass-card">
+                            <div class="card-icon purple"><i class="fas fa-box"></i></div>
+                            <div class="card-info"><h3>Pending Products</h3><h2 id="pending">0</h2></div>
+                        </div>
+                        <div class="glass-card">
+                            <div class="card-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="card-info"><h3 style="color:#ef4444;">Fraud Flagged</h3><h2 id="fraud">0</h2></div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem;">
+                        <!-- Graphs -->
+                        <div class="panel">
+                            <div class="panel-header"><h3><i class="fas fa-chart-line"></i> Platform Growth</h3></div>
+                            <div class="chart-container">
+                                <canvas id="growthChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Activity Feed -->
+                        <div class="panel">
+                            <div class="panel-header"><h3><i class="fas fa-bolt"></i> Recent Activity</h3></div>
+                            <ul id="activity" class="activity-feed" style="list-style: none; padding: 1.5rem;">
+                                <p class="text-secondary">Loading activity...</p>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Users Tab -->
+                <section id="tab-users" class="tab-content">
+                    <div class="panel">
+                        <div class="panel-header" style="justify-content: flex-end;">
+                            <input type="text" id="user-search" placeholder="Search by email..." style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--fc-border);">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th width="150">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 3. Seller Approval -->
+                <section id="tab-seller-approval" class="tab-content">
+                    <div class="panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Shop Name</th>
+                                    <th>ID Proof</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="seller-approval-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4. Product Approval -->
+                <section id="tab-product-approval" class="tab-content">
+                    <div class="panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th width="60">Img</th>
+                                    <th>Name</th>
+                                    <th>Seller</th>
+                                    <th>Fraud</th>
+                                    <th>SEO</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-approval-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- 5. Orders Tab -->
+                <section id="tab-orders" class="tab-content">
+                    <div class="panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Customer</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 6. Fairness Monitor -->
+                <section id="tab-fairness" class="tab-content">
+                    <div id="monopoly-alert-container"></div>
+                    <div class="panel">
+                        <div class="panel-header"><h3><i class="fas fa-balance-scale"></i> Fairness Distribution</h3></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Views</th>
+                                    <th>Clicks</th>
+                                    <th>CTR</th>
+                                    <th>Share (%)</th>
+                                    <th>F-Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fairness-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 7. AI Analytics -->
+                <section id="tab-ai-monitor" class="tab-content">
+                    <div class="summary-cards" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                        <div class="glass-card"><h3>SEO Accuracy</h3><h2>94%</h2></div>
+                        <div class="glass-card"><h3>Category Match</h3><h2>89%</h2></div>
+                        <div class="glass-card"><h3>Fraud Caught</h3><h2 id="ai-fraud-hits">0</h2></div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header"><h3><i class="fas fa-robot"></i> AI Performance Log</h3></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Original Title</th>
+                                    <th>AI Optimized</th>
+                                    <th>SEO Gain</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ai-log-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Script loaded at the bottom -->
+    <script src="admin.js"></script>
+</body>
+</html>

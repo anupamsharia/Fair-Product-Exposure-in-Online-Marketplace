@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders – FairCart</title>
+    <meta name="description" content="View and track all your FairCart orders in one place.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .orders-page {
+            padding: 3rem 5%;
+            max-width: 960px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        .orders-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+        .orders-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: var(--fc-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .order-count-badge {
+            background: rgba(108, 99, 255, 0.06);
+            color: var(--fc-primary);
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            padding: 0.3rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        /* Skeleton */
+        .skeleton-card {
+            background: var(--fc-surface);
+            border: 1px solid var(--fc-border);
+            border-radius: var(--fc-radius);
+            padding: 1.8rem;
+            margin-bottom: 1.2rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .skeleton-line {
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 8px;
+            height: 14px;
+            margin-bottom: 0.8rem;
+        }
+        .skeleton-line.w-60  { width: 60%; }
+        .skeleton-line.w-40  { width: 40%; }
+        .skeleton-line.w-80  { width: 80%; }
+        .skeleton-line.short { height: 10px; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.5; }
+        }
+        /* Order Card */
+        .order-card {
+            background: var(--fc-surface);
+            border: 1px solid var(--fc-border);
+            backdrop-filter: blur(20px);
+            border-radius: var(--fc-radius);
+            padding: 1.8rem;
+            margin-bottom: 1.2rem;
+            display: grid;
+            grid-template-columns: 3.5rem 1fr auto;
+            gap: 1.2rem;
+            align-items: start;
+            transition: var(--fc-transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--fc-shadow);
+        }
+        .order-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+        .order-card.status-pending::before   { background: #f59e0b; }
+        .order-card.status-shipped::before   { background: var(--fc-blue); }
+        .order-card.status-delivered::before { background: var(--fc-green); }
+        .order-card.status-cancelled::before { background: var(--fc-red); }
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(108, 99, 255, 0.1);
+            border-color: var(--fc-border-hover);
+        }
+        .order-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: var(--fc-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(108, 99, 255, 0.04);
+            flex-shrink: 0;
+        }
+        .order-product-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--fc-text);
+            margin-bottom: 0.4rem;
+        }
+        .order-meta {
+            font-size: 0.85rem;
+            color: var(--fc-text-dim);
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .order-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.6rem;
+            flex-shrink: 0;
+        }
+        .order-price {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--fc-primary);
+        }
+        /* Status pill */
+        .status-pill {
+            padding: 0.3rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .status-pill.pending   { background: rgba(245,158,11,0.08); color: #d97706; border: 1px solid rgba(245,158,11,0.2); }
+        .status-pill.shipped   { background: rgba(59,130,246,0.08); color: #2563eb; border: 1px solid rgba(59,130,246,0.2); }
+        .status-pill.delivered { background: rgba(22,163,74,0.08);  color: #16a34a; border: 1px solid rgba(22,163,74,0.2); }
+        .status-pill.cancelled { background: rgba(220,38,38,0.08);  color: #dc2626; border: 1px solid rgba(220,38,38,0.2); }
+        /* Tracker */
+        .order-tracker {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--fc-border);
+            grid-column: 1 / -1;
+        }
+        .tracker-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        .tracker-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--fc-border);
+            z-index: 0;
+        }
+        .tracker-step.done:not(:last-child)::after { background: var(--fc-primary); }
+        .tracker-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            z-index: 1;
+            border: 2px solid var(--fc-border);
+            background: #fff;
+            color: var(--fc-text-dim);
+            transition: var(--fc-transition);
+        }
+        .tracker-step.done .tracker-dot {
+            background: var(--fc-primary);
+            border-color: var(--fc-primary);
+            color: white;
+            box-shadow: 0 0 12px rgba(108, 99, 255, 0.25);
+        }
+        .tracker-label {
+            font-size: 0.7rem;
+            color: var(--fc-text-dim);
+            margin-top: 0.4rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .tracker-step.done .tracker-label { color: var(--fc-primary); }
+        .order-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.9rem;
+        }
+        .order-action-btn {
+            border: 1px solid rgba(108,99,255,0.18);
+            background: rgba(108,99,255,0.05);
+            color: var(--fc-primary);
+            border-radius: 999px;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .order-action-btn:hover {
+            background: var(--fc-gradient);
+            color: white;
+        }
+        /* Empty state */
+        .empty-orders {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+        .empty-icon {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-12px); }
+        }
+        .empty-orders h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+        .empty-orders p { color: var(--fc-text-dim); margin-bottom: 2rem; }
+        /* Error */
+        .error-banner {
+            background: rgba(220,38,38,0.05);
+            border: 1px solid rgba(220,38,38,0.2);
+            border-radius: var(--fc-radius-sm);
+            padding: 1.2rem 1.5rem;
+            color: var(--fc-red);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        @media (max-width: 600px) {
+            .order-card { grid-template-columns: 1fr; }
+            .order-icon { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="fc-bg-glow fc-glow-1"></div>
+    <div class="fc-bg-glow fc-glow-2"></div>
+    <div class="fc-bg-glow fc-glow-3"></div>
+    <div class="fc-grain"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo" style="text-decoration:none;">FairCart</a>
+        <div class="nav-links" id="nav-links" data-auth-nav="true">
+            <a href="index.html">Products</a>
+            <a href="cart.html" class="cart-icon">🛒 Cart (<span id="cart-count">0</span>)</a>
+            <div class="profile-dropdown">
+                <button class="profile-btn">👤 Profile</button>
+                <div class="dropdown-content">
+                    <a href="login.html">Login</a>
+                    <a href="register.html">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="orders-page">
+        <div class="orders-header">
+            <h1>📦 My Orders</h1>
+            <span class="order-count-badge" id="order-count-badge">Loading…</span>
+        </div>
+        <div id="orders-container">
+            <div class="skeleton-card">
+                <div class="skeleton-line w-60"></div>
+                <div class="skeleton-line w-40 short"></div>
+                <div class="skeleton-line w-80 short"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-line w-60"></div>
+                <div class="skeleton-line w-40 short"></div>
+                <div class="skeleton-line w-80 short"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-line w-60"></div>
+                <div class="skeleton-line w-40 short"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script src="customer.js"></script>
+    <script src="cart.js"></script>
+    <script src="orders.js"></script>
+</body>
+</html>

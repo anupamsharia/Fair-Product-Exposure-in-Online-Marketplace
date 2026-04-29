@@ -1,104 +1,79 @@
-# 🚀 FairRank AI
+# FairCart
 
-### Fair Exposure & Intelligent Ranking System for eCommerce
+FairCart is a demo marketplace for **fair product exposure in online marketplaces**. Instead of ranking only by popularity, the storefront combines product quality, engagement, freshness, low-exposure boosts, and seller diversity so new or small sellers can still be discovered.
 
----
+FairCart is split into two main app folders:
 
-## 📌 Project Status
+- `backend/` Flask API, MongoDB integration, ML data, and backend tools
+- `frontend/` storefront and admin frontend
 
-🚧 This is my ongoing project.
-I have started working on building an AI-based solution to solve real-world eCommerce problems.
+## Core Features
 
----
+- Fair discovery ranking with decaying low-impression boosts
+- Seller-diversity re-ranking so one seller cannot dominate a page
+- Customer storefront with fair score badges and product recommendations
+- Seller dashboard with product quality, impressions, clicks, CTR, and exposure status
+- Admin fairness monitor with visibility share, fairness index, and monopoly alerts
+- AI-assisted seller listing tools with image upload and moderation hooks
 
-## 📌 Problem
+## Local Setup
 
-In most eCommerce platforms, **top sellers always stay at the top**, while **new sellers struggle to get visibility**.
+1. Create or reuse the repo virtual environment in `.venv/`.
+2. Install backend dependencies:
 
-This leads to:
+```powershell
+Set-Location backend
+..\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-* ❌ Unfair product exposure
-* ❌ Low chances for new businesses
-* ❌ Limited product discovery
+3. Configure backend environment:
 
----
+```powershell
+Copy-Item .env.example .env
+```
 
-## 💡 Solution
+Update `backend/.env` with:
 
-**FairRank AI** solves this problem using a smart AI-based ranking system.
+- `MONGO_URI`
+- `SECRET_KEY`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `OPENAI_API_KEY`
+- `FLASK_ENV`
+- `CORS_ORIGINS`
 
-It ranks products based on:
+## Run Locally
 
-* 🔍 User Interest (Relevance)
-* ⭐ Product Quality (Ratings & Reviews)
-* ⚖️ Fairness Score (Boost for new sellers)
+Backend:
 
-👉 This ensures both **good recommendations + fair exposure**
+```powershell
+Set-Location backend
+..\.venv\Scripts\python.exe app.py
+```
 
----
+Frontend:
 
-## 🧠 Key Features
+```powershell
+Set-Location frontend
+..\.venv\Scripts\python.exe -m http.server 8000 --bind 127.0.0.1
+```
 
-* 🤖 AI-based product ranking
-* ⚖️ Fair exposure for new sellers
-* 📊 Data-driven decision system
-* 🚀 Real-world eCommerce use case
+URLs:
 
----
+- Storefront: `http://127.0.0.1:8000/s-frontend/index.html`
+- Admin: `http://127.0.0.1:8000/admin-frontend/admin.html`
+- Integrated backend-served app: `http://localhost:5000`
 
-## ⚙️ How It Works (Simple)
+## Useful Backend Tools
 
-1. Take user data (clicks, search, history)
-2. Analyze product & seller data
-3. Calculate score:
+- Seed realistic matched catalog data: `backend/tools/maintenance/seed_real_market.py`
+- Seed sample market data: `backend/tools/maintenance/populate_market.py`
+- Inspect ML files: `backend/tools/diagnostics/check_behavior.py`
+- See tool layout: `backend/tools/README.md`
 
-Final Score = Relevance + Quality + Fairness
+## Production Notes
 
-4. Rank products based on score
-
----
-
-## 🛠 Tech Stack
-
-* Python
-* Pandas & NumPy
-* Scikit-learn
-* Machine Learning
-* Flask / FastAPI (optional)
-* Streamlit (optional UI)
-
----
-
-## 📊 Use Cases
-
-* eCommerce websites
-* Marketplace startups
-* Small business platforms
-
----
-
-## 🚀 Future Scope
-
-* Deep Learning models
-* Real-time ranking system
-* Personalized recommendations
-* Cloud deployment
-
----
-
-## 🏆 Why This Project
-
-* Solves real industry problem
-* Unique (not common project)
-* Strong for AI/ML roles
-* Can become startup idea
-
----
-
-## 📫 Contact
-
-GitHub: https://github.com/anupamsharia
-
----
-
-### 🚀 "Making eCommerce Fair with AI"
+- Serve the Flask app from `backend/app.py`
+- Keep secrets in environment variables, not committed files
+- Put a reverse proxy like Nginx in front of the backend
+- Use the `/health` endpoint for health checks

@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local configuration and private credentials
+.env
+backend/.env
+backend/vision-key.json
+vision-key.json
+
+# Runtime uploads and local browser QA profiles
+backend/uploads/
+.tmp-*/
+.pytest_cache/

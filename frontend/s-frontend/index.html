@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairCart - Discovery Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Ambient Background Effects -->
+    <div class="fc-bg-glow fc-glow-1"></div>
+    <div class="fc-bg-glow fc-glow-2"></div>
+    <div class="fc-bg-glow fc-glow-3"></div>
+    <div class="fc-grain"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo" style="text-decoration:none;">FairCart</a>
+        <div class="nav-center">
+            <div class="categories">
+                <select id="category-filter">
+                    <option value="All">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home & Kitchen">Home & Kitchen</option>
+                </select>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search for products...">
+                <button id="search-btn">Search</button>
+            </div>
+        </div>
+        <div class="nav-links" id="nav-links" data-auth-nav="true">
+            <!-- Populated by auth.js -->
+        </div>
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav-menu" id="mobile-nav-menu">
+        <div class="nav-links" id="mobile-nav-links" data-auth-nav="true">
+            <!-- Populated by auth.js -->
+        </div>
+    </div>
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <!-- Home Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Discover Products Fairly</h1>
+            <p>Empowering Every Seller with Equal Opportunity</p>
+            <div class="hero-btns" id="hero-btns-container">
+                <button class="btn-primary"
+                    onclick="document.querySelector('.products-section').scrollIntoView({behavior: 'smooth'})">Explore
+                    Products</button>
+                <a class="btn-secondary" id="hero-seller-btn" href="seller.html">Become a Seller</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Section -->
+    <section class="products-section">
+        <h2>Explore Products</h2>
+        <div id="product-grid" class="product-grid">
+            <!-- Products injected by JS here -->
+        </div>
+    </section>
+
+    <script src="auth.js"></script>
+    <script src="customer.js"></script>
+    <script>
+        // Apply role guards
+        requireCustomer();
+
+        // Hide "Become a Seller" if already a customer
+        const user = getCurrentUser();
+        if (user && user.role === 'customer') {
+            const sellerBtn = document.getElementById('hero-seller-btn');
+            if (sellerBtn) sellerBtn.style.display = 'none';
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileNavMenu = document.getElementById('mobile-nav-menu');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        if (mobileMenuToggle && mobileNavMenu) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuToggle.classList.toggle('active');
+                mobileNavMenu.classList.toggle('active');
+                mobileOverlay.classList.toggle('active');
+                document.body.style.overflow = mobileNavMenu.classList.contains('active') ? 'hidden' : '';
+            });
+
+            mobileOverlay.addEventListener('click', () => {
+                mobileMenuToggle.classList.remove('active');
+                mobileNavMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            // Close menu when clicking on links
+            const mobileLinks = mobileNavMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileNavMenu.classList.remove('active');
+                    mobileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+        }
+    </script>
+    <script src="cart.js"></script>
+    <script src="app.js?v=products-fix-20260421"></script>
+</body>
+
+</html>

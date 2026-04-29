@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - FairCart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .product-page-wrapper {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        .product-visual {
+            background: var(--fc-surface);
+            border: 1px solid var(--fc-border);
+            border-radius: var(--fc-radius);
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            box-shadow: var(--fc-shadow);
+            backdrop-filter: blur(20px);
+            transition: var(--fc-transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .product-visual::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--fc-gradient);
+        }
+        .product-visual:hover {
+            box-shadow: 0 16px 48px rgba(108, 99, 255, 0.12);
+            transform: translateY(-4px);
+        }
+        .product-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .fair-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(108, 99, 255, 0.06);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            color: var(--fc-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            width: max-content;
+            margin-bottom: 0.5rem;
+        }
+        .product-title {
+            font-size: 2.5rem;
+            line-height: 1.15;
+            color: var(--fc-text);
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        .product-price-large {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--fc-primary);
+        }
+        .product-description {
+            color: var(--fc-text-dim);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        .seller-block {
+            background: rgba(108, 99, 255, 0.03);
+            border: 1px solid var(--fc-border);
+            padding: 1rem 1.5rem;
+            border-radius: var(--fc-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--fc-transition);
+        }
+        .seller-block:hover {
+            border-color: var(--fc-border-hover);
+            box-shadow: 0 4px 16px rgba(108, 99, 255, 0.06);
+        }
+        .btn-add-large {
+            background: var(--fc-gradient);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: var(--fc-radius-sm);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--fc-transition);
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-add-large:hover {
+            box-shadow: 0 12px 32px rgba(108, 99, 255, 0.3);
+            transform: translateY(-3px) scale(1.01);
+        }
+        .product-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        .product-action-secondary {
+            border: 1px solid rgba(108, 99, 255, 0.18);
+            background: rgba(255, 255, 255, 0.72);
+            color: var(--fc-primary);
+            padding: 1.1rem;
+            border-radius: var(--fc-radius-sm);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--fc-transition);
+            font-family: inherit;
+        }
+        .product-action-secondary:hover,
+        .product-action-secondary.is-saved {
+            color: white;
+            background: var(--fc-gradient);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(108, 99, 255, 0.22);
+        }
+        @media(max-width: 900px) {
+            .product-page-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .product-visual {
+                height: 350px;
+            }
+            .product-title {
+                font-size: 2rem;
+            }
+            .product-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fc-bg-glow fc-glow-1"></div>
+    <div class="fc-bg-glow fc-glow-2"></div>
+    <div class="fc-bg-glow fc-glow-3"></div>
+    <div class="fc-grain"></div>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html" style="color:inherit; text-decoration:none;">FairCart</a></div>
+        <div class="nav-links" id="nav-links" data-auth-nav="true">
+            <!-- Header layout populated dynamically by auth.js -->
+        </div>
+    </nav>
+
+    <div class="product-page-wrapper" id="page-content">
+        <!-- Rendered fully via core extraction scripts mapped down below -->
+    </div>
+
+    <!-- Core Runtime Scripts mapping logic layers -->
+    <script src="auth.js"></script>
+    <script src="cart.js"></script>
+    <script src="customer.js"></script>
+    <script>
+        const PRODUCT_API_ORIGIN = typeof getFairCartApiOrigin === "function"
+            ? getFairCartApiOrigin()
+            : (window.location.port === "5000" ? "" : `${window.location.protocol === "https:" ? "https:" : "http:"}//${window.location.hostname || "localhost"}:5000`);
+
+        function productEscape(value) {
+            if (window.FairCartCustomer?.escapeHtml) return window.FairCartCustomer.escapeHtml(value);
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function productPrice(value) {
+            return `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
+        }
+
+        function productFairMeta(product) {
+            const impressions = Number(product.impressions || 0);
+            const score = Math.round(Number(product.final_score || 0) * 100);
+            const bucket = product.exposure_bucket || (
+                impressions === 0 ? "new" :
+                impressions < 25 ? "low_exposure" :
+                impressions < 100 ? "growing" :
+                "established"
+            );
+            const labels = {
+                new: "New discovery boost",
+                low_exposure: "Low-view boost",
+                growing: "Balanced growth",
+                established: "Quality ranked"
+            };
+            return {
+                label: labels[bucket] || "Fair ranked",
+                score: Number.isFinite(score) ? score : 0,
+                reason: product.fair_exposure_reason || "Balanced by exposure, engagement, quality, and seller diversity."
+            };
+        }
+
+        window.buyNowFromEncoded = function(encodedProduct) {
+            const product = window.FairCartCustomer?.decodeProduct?.(encodedProduct);
+            if (!product) return;
+            const added = addToCart(product.name, product.price, {
+                seller_id: product.seller_id || "",
+                product_id: product._id || "",
+                image_url: product.image_url || ""
+            });
+            if (added) window.location.href = "cart.html";
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof requireCustomer === 'function') requireCustomer();
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id'); // MongoDB IDs are strings, not integers
+
+            if(!productId || productId === 'null') {
+                document.getElementById('page-content').innerHTML = "<h2 style='text-align:center; color: white;'>Product Not Found! <br><br> <a href='index.html' style='color: var(--primary-color);'>Return to Main Market</a></h2>";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${PRODUCT_API_ORIGIN}/api/product/single?id=${productId}`, { cache: 'no-store' });
+                if(!res.ok) throw new Error("Product fetch failed");
+                const data = await res.json();
+                const product = data.product;
+
+                if(!product) {
+                    document.getElementById('page-content').innerHTML = "<h2 style='text-align:center; color: white;'>The specified product has been removed by the Seller! <br><br> <a href='index.html' style='color: var(--primary-color);'>Return to Main Market</a></h2>";
+                    return;
+                }
+
+                const displayIcon = product.icon ? product.icon : "Box";
+                const sellerDisplay = product.seller_name || (product.seller_id ? product.seller_id.split('@')[0].toUpperCase() : 'UNKNOWN');
+                const fairMeta = productFairMeta(product);
+                const dummyDescription = product.description
+                    ? productEscape(product.description)
+                    : `Experience the premium build quality of <strong>${productEscape(product.name)}</strong>. This listing is ranked through FairCart's exposure system so quality products from smaller sellers can be discovered.`;
+
+                const userRole = (getCurrentUser() || {}).role || 'guest';
+                const isSpecialUser = userRole === 'seller' || userRole === 'admin';
+
+                let badgesHtml = '';
+                if (isSpecialUser && product.impressions < 50) badgesHtml += `<span class="badge badge-boosted" style="font-size: 0.8rem; padding: 0.3rem 0.8rem;">Boosted Visibility</span>`;
+                if ((product.impressions || 0) <= 100) badgesHtml += `<span class="badge badge-new" style="font-size: 0.8rem; padding: 0.3rem 0.8rem;">New Arrival</span>`;
+                badgesHtml += `<span class="badge" title="${productEscape(fairMeta.reason)}" style="background:rgba(108,99,255,0.08); border:1px solid rgba(108,99,255,0.2); color:var(--fc-primary); font-size: 0.8rem; padding: 0.3rem 0.8rem;">${fairMeta.label} (${fairMeta.score})</span>`;
+                if (product.on_sale) badgesHtml += `<span class="badge" style="background:rgba(34,197,94,0.15); border:1px solid #22c55e; color:#22c55e; font-size: 0.8rem; padding: 0.3rem 0.8rem;">Sale</span>`;
+
+                const priceHtml = product.on_sale && product.original_price
+                    ? `<div style="display:flex; align-items:baseline; gap:0.75rem; flex-wrap:wrap;">
+                           <span class="product-price-large" style="color:#22c55e;">${productPrice(product.price)}</span>
+                           <span style="color:#9ca3af; text-decoration:line-through; font-size:1.3rem;">${productPrice(product.original_price)}</span>
+                           <span style="background:#22c55e; color:white; font-size:0.8rem; padding:0.2rem 0.6rem; border-radius:6px; font-weight:700;">Save ${productPrice(product.original_price - product.price)}</span>
+                       </div>`
+                    : `<div class="product-price-large">${productPrice(product.price)}</div>`;
+
+                const firstImage = product.image_url || (product.image_urls && product.image_urls[0]) || '';
+                const visualHtml = firstImage
+                    ? `<img src="${productEscape(firstImage)}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;" onerror="this.parentNode.innerHTML='${productEscape(displayIcon)}'; this.parentNode.style.fontSize='8rem';">`
+                    : productEscape(displayIcon);
+                const cartMeta = encodeURIComponent(JSON.stringify({
+                    seller_id: product.seller_id || '',
+                    product_id: product._id || '',
+                    image_url: firstImage
+                }));
+                const safeProductName = String(product.name || '').replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+                const productPriceValue = Number(product.price) || 0;
+                const encodedProduct = window.FairCartCustomer?.encodeProduct
+                    ? window.FairCartCustomer.encodeProduct(product)
+                    : encodeURIComponent(JSON.stringify(product));
+                const isSaved = window.FairCartCustomer?.isSaved?.(product) || false;
+                const safeTitle = productEscape(product.name);
+                window.FairCartCustomer?.trackRecentlyViewed?.(product);
+
+                document.getElementById('page-content').innerHTML = `
+                    <div class="product-visual" style="${firstImage ? 'padding:0; overflow:hidden;' : ''}">
+                        ${visualHtml}
+                    </div>
+                    <div class="product-meta">
+                        <div class="fair-tag">Fair Exposure Enabled</div>
+                        
+                        <h1 class="product-title">${safeTitle}</h1>
+                        ${priceHtml}
+                        
+                        <div style="display:flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap:wrap;">
+                            ${badgesHtml}
+                            <span id="ai-score-badge" class="badge" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.2); color:var(--text-secondary); display:none;">
+                                🤖 AI Quality: Loading...
+                            </span>
+                        </div>
+
+                        <p class="product-description">${dummyDescription}</p>
+
+                        <div class="seller-block">
+                            <div>
+                                <span style="color:var(--text-secondary); font-size:0.9rem;">Sold By</span>
+                                <div style="font-weight: 600; font-size: 1.1rem; color: var(--fc-text);">${productEscape(sellerDisplay)}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="color:var(--text-secondary); font-size:0.9rem;">Category</span>
+                                <div style="font-weight: 500; color: var(--primary-color);">${productEscape(product.category || "Uncategorized")}</div>
+                            </div>
+                        </div>
+
+                        <div class="product-actions">
+                            <button class="btn-add-large" onclick="addToCart('${safeProductName}', ${productPriceValue}, JSON.parse(decodeURIComponent('${cartMeta}')))">Add to Cart</button>
+                            <button class="product-action-secondary" onclick="buyNowFromEncoded('${encodedProduct}')">Buy Now</button>
+                            <button class="product-action-secondary ${isSaved ? 'is-saved' : ''}" onclick="FairCartCustomer.toggleSavedFromEncoded('${encodedProduct}', event)">${isSaved ? 'Saved' : 'Save'}</button>
+                        </div>
+                        
+                        <p style="color: var(--text-secondary); font-size: 0.8rem; text-align: center; margin-top: 1rem;">
+                            ${product.impressions || 0} Views | ${product.clicks || 0} Clicks | Rating ${product.rating || 'N/A'} (${product.reviews_count || 0} reviews)
+                        </p>
+                    </div>
+
+                    <div style="grid-column: 1 / -1; margin-top: 4rem;">
+                        <h2 style="color: var(--fc-text); margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+                             More in ${productEscape(product.category || 'This Category')}
+                        </h2>
+                        <div id="recommendations-row" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <p style="color:var(--text-secondary);">Loading recommendations...</p>
+                        </div>
+                    </div>
+                `;
+
+                // --- 2. Load ML Sentiment ---
+                if (product.asin) {
+                    fetch(`${PRODUCT_API_ORIGIN}/api/ml/sentiment?asin=${product.asin}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.score > 0) {
+                                const badge = document.getElementById('ai-score-badge');
+                                badge.style.display = 'inline-flex';
+                                badge.innerHTML = `🤖 AI Quality: ${d.score.toFixed(1)}%`;
+                                badge.style.borderColor = d.score > 40 ? '#4caf50' : '#ff9800';
+                                badge.style.color = d.score > 40 ? '#4caf50' : '#ff9800';
+                            }
+                        }).catch(() => {});
+                }
+
+                // --- 3. Load Recommendations (ML if available, else by category) ---
+                const recRow = document.getElementById('recommendations-row');
+
+                async function loadCategoryRecs(category, excludeId) {
+                    try {
+                        const res = await fetch(`${PRODUCT_API_ORIGIN}/api/product/by-category?category=${encodeURIComponent(category)}&exclude=${excludeId}&limit=6`, { cache: 'no-store' });
+                        const d = await res.json();
+                        if (d.products && d.products.length > 0) {
+                            renderRecs(d.products);
+                        } else {
+                            recRow.innerHTML = `<p style="color:var(--text-secondary);">No similar products found in this category yet.</p>`;
+                        }
+                    } catch(e) {
+                        recRow.innerHTML = `<p style="color:var(--text-secondary);">Could not load recommendations.</p>`;
+                    }
+                }
+
+                function renderRecs(items) {
+                    recRow.innerHTML = items.map(p => `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${encodeURIComponent(p._id)}'" style="cursor:pointer; padding: 1rem;">
+                            <div style="height: 130px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.8rem; overflow:hidden;">
+                                ${(p.image_url || (p.image_urls && p.image_urls[0]))
+                                    ? `<img src="${productEscape(p.image_url || p.image_urls[0])}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;" onerror="this.style.display='none'; this.parentNode.innerHTML='Box';">`
+                                    : productEscape(p.icon || 'Box')}
+                            </div>
+                            <div style="font-weight:600; font-size:0.88rem; color:var(--fc-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${productEscape(p.name)}">${productEscape(p.name)}</div>
+                            ${p.on_sale && p.original_price ? `
+                                <div style="margin-top:0.3rem;">
+                                    <span style="color:#ef4444; text-decoration:line-through; font-size:0.75rem;">${productPrice(p.original_price)}</span>
+                                    <span style="color:#22c55e; font-weight:700; margin-left:0.4rem;">${productPrice(p.price)}</span>
+                                    <span style="background:#22c55e; color:white; font-size:0.65rem; padding:0.1rem 0.4rem; border-radius:4px; margin-left:0.3rem;">Sale</span>
+                                </div>` : `
+                                <div style="color:var(--primary-color); font-weight:700; margin-top:0.3rem;">${productPrice(p.price)}</div>`
+                            }
+                            <div style="color:var(--text-secondary); font-size:0.75rem; margin-top:0.2rem;">${productEscape(p.category || '')}</div>
+                        </div>
+                    `).join('');
+                }
+
+                if (product.ml_id) {
+                    // Try ML recommendations first
+                    fetch(`${PRODUCT_API_ORIGIN}/api/ml/recommend?id=${productId}&limit=6`, { cache: 'no-store' })
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.recommendations && d.recommendations.length > 0) {
+                                renderRecs(d.recommendations);
+                            } else {
+                                // ML returned nothing — fall back to category
+                                loadCategoryRecs(product.category, productId);
+                            }
+                        }).catch(() => loadCategoryRecs(product.category, productId));
+                } else {
+                    // No ML id — use category-based recommendations directly
+                    loadCategoryRecs(product.category, productId);
+                }
+            } catch(err) {
+                console.error(err);
+                document.getElementById('page-content').innerHTML = "<h2 style='text-align:center; color: #ef4444;'>Backend Connection Failed! <br><br> <a href='index.html' style='color: var(--primary-color);'>Return to Main Market</a></h2>";
+            }
+        });
+    </script>
+</body>
+</html>

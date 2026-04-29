@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard – FairCart</title>
+    <meta name="description" content="Manage your FairCart seller account. Fair Exposure guaranteed.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+    /* ── Dashboard Overrides (fc-* design system) ── */
+    body {
+        display: flex;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .sd-sidebar {
+        width: 240px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px) saturate(180%);
+        border-right: 1px solid var(--fc-border);
+        position: fixed;
+        height: 100vh;
+        z-index: 50;
+        box-shadow: 2px 0 24px rgba(108, 99, 255, 0.04);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo { padding: 1.5rem; text-align: center; border-bottom: 1px solid var(--fc-border); }
+    .brand { font-size: 1.5rem; font-weight: 800; background: var(--fc-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
+
+    .sidebar-nav { padding: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .nav-item {
+        padding: 0.75rem 1rem;
+        border-radius: var(--fc-radius-sm);
+        color: var(--fc-text-muted);
+        text-decoration: none;
+        cursor: pointer;
+        transition: var(--fc-transition);
+        font-weight: 500;
+        font-size: 0.92rem;
+    }
+    .nav-item:hover { background: rgba(108, 99, 255, 0.05); color: var(--fc-text); }
+    .nav-item.active { background: rgba(108, 99, 255, 0.08); color: var(--fc-text); font-weight: 600; }
+
+    .sd-main { margin-left: 240px; flex: 1; padding: 2rem; position: relative; z-index: 10; }
+    .sd-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .sd-topbar h2 { font-weight: 800; letter-spacing: -0.5px; }
+    .sd-title-row { display: flex; align-items: center; gap: 0.85rem; }
+    .sd-menu-btn {
+        display: none;
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--fc-border);
+        border-radius: var(--fc-radius-sm);
+        background: rgba(255, 255, 255, 0.86);
+        color: var(--fc-text);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--fc-shadow);
+    }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+    .stat-card {
+        background: var(--fc-surface);
+        padding: 1.5rem;
+        border-radius: var(--fc-radius);
+        border: 1px solid var(--fc-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+        transition: var(--fc-transition);
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(108, 99, 255, 0.1); border-color: var(--fc-primary); }
+    
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    .card-icon.blue    { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .card-icon.green   { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+    .card-icon.purple  { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .card-icon.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: viewFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    @keyframes viewFadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card {
+        background: var(--fc-surface);
+        padding: 2rem;
+        border-radius: var(--fc-radius);
+        border: 1px solid var(--fc-border);
+        max-width: 600px;
+        box-shadow: var(--fc-shadow);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+    .form-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--fc-gradient);
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; color: var(--fc-text-muted); font-weight: 500; font-size: 0.9rem; }
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        background: rgba(255,255,255,0.85);
+        border: 1px solid var(--fc-border);
+        border-radius: var(--fc-radius-sm);
+        color: var(--fc-text);
+        font-family: inherit;
+        transition: var(--fc-transition);
+    }
+    .form-control:focus { border-color: var(--fc-primary); box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.08); outline: none; }
+
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .product-card-seller {
+        background: var(--fc-surface);
+        border: 1px solid var(--fc-border);
+        border-radius: var(--fc-radius);
+        padding: 1.5rem;
+        box-shadow: var(--fc-shadow);
+        transition: var(--fc-transition);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .product-card-seller:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(108, 99, 255, 0.1); border-color: var(--fc-primary); }
+
+    .order-row {
+        background: var(--fc-surface);
+        border: 1px solid var(--fc-border);
+        border-radius: var(--fc-radius-sm);
+        padding: 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: var(--fc-transition);
+    }
+    .order-row:hover { background: rgba(255,255,255,0.9); border-color: var(--fc-primary); transform: translateX(5px); }
+
+    .upload-box {
+        border: 2px dashed var(--fc-border) !important;
+        border-radius: var(--fc-radius-sm) !important;
+        background: rgba(108, 99, 255, 0.02) !important;
+        transition: var(--fc-transition) !important;
+    }
+    .upload-box:hover {
+        border-color: var(--fc-primary) !important;
+        background: rgba(108, 99, 255, 0.04) !important;
+    }
+    .seller-form-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+        gap: 2rem;
+        align-items: start;
+    }
+    .seller-products-toolbar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .seller-products-toolbar .form-control {
+        max-width: 260px;
+    }
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 45;
+    }
+    .sidebar-overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @media (max-width: 1024px) {
+        .seller-form-grid { grid-template-columns: 1fr; }
+        .seller-form-grid > div[style*="sticky"] { position: static !important; }
+    }
+
+    @media (max-width: 768px) {
+        .sd-sidebar { transform: translateX(-100%); }
+        .sd-sidebar.open { transform: translateX(0); }
+        .sd-main { margin-left: 0; }
+        .sd-topbar { align-items: flex-start; gap: 1rem; }
+        .sd-menu-btn { display: inline-flex; }
+        .sidebar-overlay { display: block; }
+        .seller-products-toolbar .form-control { max-width: none; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    #fc-toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        padding: 1rem 2rem;
+        border-radius: var(--fc-radius-sm);
+        z-index: 1000;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(108, 99, 255, 0.15);
+        color: var(--fc-text);
+        box-shadow: 0 12px 32px rgba(108, 99, 255, 0.1);
+    }
+    #fc-toast.toast-active {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    </style>
+</head>
+<body>
+
+<!-- Ambient Background -->
+<div class="fc-bg-glow fc-glow-1"></div>
+<div class="fc-bg-glow fc-glow-2"></div>
+<div class="fc-bg-glow fc-glow-3"></div>
+<div class="fc-grain"></div>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<aside class="sd-sidebar" id="sd-sidebar">
+    <div class="sidebar-logo">
+        <div class="brand">FairCart</div>
+        <div style="font-size:0.7rem; color:#64748b;">Seller Portal</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a class="nav-item active" id="nav-item-dashboard" onclick="switchView('dashboard')">📊 Dashboard</a>
+        <a class="nav-item" id="nav-item-add" onclick="switchView('add')">➕ Add Product</a>
+        <a class="nav-item" id="nav-item-products" onclick="switchView('products')">🛍️ My Products</a>
+        <a class="nav-item" id="nav-item-orders" onclick="switchView('orders')">📋 Orders</a>
+        <a class="nav-item" id="nav-item-notifications" onclick="switchView('notifications')">🔔 Notifications</a>
+    </nav>
+    <div style="padding: 1.5rem; border-top: 1px solid var(--border); margin-top: auto;">
+        <div id="shop-name-display" style="font-weight:600; margin-bottom:1rem;">My Shop</div>
+        <button onclick="sellerLogout(event)" style="width:100%; padding:0.6rem; border:1px solid #ef4444; color:#ef4444; background:transparent; border-radius:6px; cursor:pointer;">Logout</button>
+    </div>
+</aside>
+
+<main class="sd-main">
+    <header class="sd-topbar">
+        <div class="sd-title-row">
+            <button class="sd-menu-btn" type="button" onclick="openSidebar()" aria-label="Open seller menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div>
+                <h2 id="page-title">Dashboard</h2>
+                <div style="font-size: 0.9rem; color: var(--fc-text-muted); margin-top: 0.2rem;">Welcome back, <span id="seller-name-header" style="font-weight: 700; color: var(--fc-primary);">Seller</span></div>
+            </div>
+        </div>
+        <div id="verify-badge-container">
+            <!-- Badge injected via JS -->
+        </div>
+    </header>
+
+    <div class="sd-content" id="sd-content-area">
+        <!-- View: Dashboard -->
+        <div class="view active" id="view-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="card-icon blue"><i class="fas fa-box"></i></div>
+                    <div class="stat-number" id="stat-total">0</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-card">
+                    <div class="card-icon green"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-number" id="stat-orders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="card-icon purple"><i class="fas fa-eye"></i></div>
+                    <div class="stat-number" id="stat-impressions">0</div>
+                    <div class="stat-label">Total Impressions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="card-icon warning"><i class="fas fa-mouse-pointer"></i></div>
+                    <div class="stat-number" id="stat-clicks">0</div>
+                    <div class="stat-label">Total Clicks</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1.2rem; font-weight: 700;">Quick Actions</h3>
+            <div class="quick-actions-bar">
+                <button class="action-btn" onclick="switchView('add')" id="qa-add-btn">
+                    <i class="fas fa-plus-circle"></i> Add Product
+                </button>
+                <button class="action-btn" onclick="switchView('products')">
+                    <i class="fas fa-boxes"></i> My Products
+                </button>
+                <button class="action-btn" onclick="switchView('orders')">
+                    <i class="fas fa-list-check"></i> View Orders
+                </button>
+            </div>
+
+            <div class="banner banner-fair" id="pending-alert" style="display:none; background:rgba(245,158,11,0.05); border:1px solid #f59e0b; padding:1.2rem; border-radius:12px; color:#d97706; align-items: center; gap: 1rem;">
+                <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
+                <div>
+                   <strong style="display: block; margin-bottom: 2px;">Verification Pending</strong>
+                   Your account is under verification. You can add products after approval.
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Add Product (AI Powered) -->
+        <div class="view" id="view-add">
+            <div class="seller-form-grid">
+                <!-- Form Side -->
+                <div class="form-card" style="max-width: none;">
+                    <form id="add-product-form" onsubmit="addProduct(event)">
+                        <!-- Section 1: Basic Info & AI Studio -->
+                        <div class="ai-form-section">
+                            <h3 class="ai-section-title"><i class="fas fa-magic"></i> ✨ AI Listing Studio</h3>
+                            <p style="font-size: 0.85rem; color: var(--fc-text-muted); margin-bottom: 1.5rem;">
+                                Start with a basic name and description, then let our AI optimize everything for you.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" id="prod-name" class="form-control" placeholder="e.g. Sony WH-1000XM5 Headphones" required oninput="updateLivePreview()">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Draft Description</label>
+                                <textarea id="prod-desc" class="form-control" rows="3" placeholder="Quick notes about your product..." oninput="updateLivePreview()"></textarea>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div class="form-group">
+                                    <label>Price (₹)</label>
+                                    <input type="number" id="prod-price" class="form-control" placeholder="999" required oninput="updateLivePreview()">
+                                </div>
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <select id="prod-category" class="form-control" onchange="updateLivePreview()">
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Home & Kitchen">Home & Kitchen</option>
+                                    </select>
+                                    <div id="category-ai-label" class="ai-tag-sim" style="display: none;">AI Suggested</div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-ai-text" style="width: 100%; padding: 1rem; background: var(--fc-primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="optimizeListingWithAI()">
+                                <i class="fas fa-wand-sparkles"></i> Optimize Listing with AI (Title, Description, SEO)
+                            </button>
+
+                            <!-- AI Suggestion Review Box -->
+                            <div id="ai-review-box" style="display: none; margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; background: rgba(108, 99, 255, 0.05); border: 1px dashed var(--fc-primary);">
+                                <h4 style="color: var(--fc-primary); margin-bottom: 1rem;"><i class="fas fa-robot"></i> Review AI Improvements</h4>
+                                <div id="ai-review-content" style="font-size: 0.9rem; line-height: 1.6; color: var(--fc-text);">
+                                    <!-- Dynamic Content -->
+                                </div>
+                                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                                    <button type="button" class="btn-primary" style="flex: 1; padding: 0.6rem; border: none; background: var(--fc-primary); color: white; border-radius: 6px; cursor: pointer;" onclick="acceptAIReview()">Apply Improvements</button>
+                                    <button type="button" class="btn-secondary" style="flex: 1; padding: 0.6rem; border: 1px solid var(--fc-border); background: white; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('ai-review-box').style.display='none'">Discard</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Media Upload -->
+                        <div class="ai-form-section" style="margin-top: 2rem;">
+                            <h3 class="ai-section-title"><i class="fas fa-images"></i> Product Media</h3>
+                            <div class="media-upload-container">
+                                <div class="upload-box" id="upload-box-img" onclick="document.getElementById('prod-images').click()" style="padding: 2rem; text-align: center; border: 2px dashed var(--fc-border); border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                                    <div class="upload-icon" style="font-size: 2rem; margin-bottom: 0.5rem;">📸</div>
+                                    <div class="upload-text" style="font-weight: 600;">Upload Product Images</div>
+                                    <div class="upload-req" style="font-size: 0.75rem; color: var(--fc-text-muted);">You can select up to 5 images (Required)</div>
+                                    <input type="file" id="prod-images" accept="image/*" multiple style="display: none;" onchange="handleMultipleMediaPreview(this)">
+                                </div>
+                                
+                                <div id="image-previews-container" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;"></div>
+
+                                <div class="upload-box" id="upload-box-vid" onclick="document.getElementById('prod-video').click()" style="margin-top: 1rem; padding: 1rem; text-align: center; border: 1px solid var(--fc-border); border-radius: 12px; cursor: pointer;">
+                                    <div class="upload-icon">🎥</div>
+                                    <div class="upload-text">Add Product Video (Optional)</div>
+                                    <input type="file" id="prod-video" accept="video/*" style="display: none;" onchange="handleMediaPreviewEnhanced(this, 'video')">
+                                </div>
+                            </div>
+                            
+                            <!-- AI Detected Tags -->
+                            <div id="ai-tags-display" style="display: none; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 1rem;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--fc-primary); margin-bottom: 0.5rem;">✨ AI Search Keywords (Hidden from Customers):</div>
+                                <div id="detected-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="seo-keywords" value="">
+
+                        <button type="submit" id="add-btn" class="btn-primary" style="width:100%; padding: 1.2rem; margin-top: 2rem; background: var(--fc-gradient); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: all 0.2s;">
+                            <span id="btn-text">🚀 List Product on FairCart</span>
+                            <span id="btn-loader" style="display: none;">📤 Processing & Uploading...</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Preview Side (Sticky) -->
+                <div style="position: sticky; top: 2rem;">
+                    <!-- Quality Score Meter -->
+                    <div class="form-card" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4 style="margin: 0; font-weight: 700;">Product Quality Score</h4>
+                            <span id="score-val" style="font-weight: 800; color: var(--fc-primary);">0%</span>
+                        </div>
+                        <div class="score-meter-bg">
+                            <div id="score-fill" class="score-meter-fill" style="width: 0%;"></div>
+                        </div>
+                        <p id="score-tip" style="font-size: 0.8rem; color: var(--fc-text-muted); margin-top: 0.8rem;">
+                            Keep filling the form to increase visibility!
+                        </p>
+                    </div>
+
+                    <!-- Live Preview Card -->
+                    <h4 style="margin-left: 0.5rem; margin-bottom: 0.8rem; font-weight: 700;">Live Storefront Preview</h4>
+                    <div id="live-preview-container">
+                        <!-- Card injected via JS -->
+                    </div>
+
+                    <div class="ai-optimization-box">
+                        <h4 style="margin-top: 0; font-size: 0.9rem; color: var(--fc-primary);">✨ AI Suggestions</h4>
+                        <ul id="ai-suggestions-list" style="padding-left: 1.2rem; font-size: 0.82rem; color: var(--fc-text-dim);">
+                            <li>Add high-resolution images for 2x more clicks.</li>
+                            <li>Use descriptive keywords in the title.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: My Products -->
+        <div class="view" id="view-products">
+            <div class="seller-products-toolbar">
+                <input type="search" id="search-input" class="form-control" placeholder="Search your products..." oninput="filterProducts()">
+                <select id="cat-filter" class="form-control" onchange="filterProducts()">
+                    <option value="All">All Categories</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home & Kitchen">Home & Kitchen</option>
+                </select>
+            </div>
+            <div class="products-grid" id="products-grid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- View: Orders -->
+        <div class="view" id="view-orders">
+            <div id="orders-list" style="display:flex; flex-direction:column; gap:1rem;">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- View: Notifications -->
+        <div class="view" id="view-notifications">
+            <div id="notifications-list"></div>
+        </div>
+    </div>
+</main>
+
+<div id="fc-toast" class="fc-toast"></div>
+
+<script src="auth.js"></script>
+<script src="seller.js"></script>
+</body>
+</html>

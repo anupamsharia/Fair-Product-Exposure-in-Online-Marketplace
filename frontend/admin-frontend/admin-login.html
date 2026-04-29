@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - FairCart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .login-wrapper {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(56, 189, 248, 0.1);
+            filter: blur(100px);
+            top: -100px;
+            right: -100px;
+            border-radius: 50%;
+        }
+        .login-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .login-card h2 {
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            color: #f8fafc;
+            letter-spacing: -0.025em;
+        }
+        .form-control {
+            width: 100%;
+            padding: 1.1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            border-color: #38bdf8;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, #38bdf8 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.4);
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h2>FairCart <span style="color: #38bdf8;">Admin</span></h2>
+            <form id="admin-login-form" onsubmit="adminLogin(event)">
+                <input type="email" id="admin-email" class="form-control" placeholder="Admin Email" required>
+                <input type="password" id="admin-pass" class="form-control" placeholder="Password" required>
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+            <p style="margin-top: 2rem; font-size: 0.85rem; color: #94a3b8;">Restricted Access Area</p>
+        </div>
+    </div>
+    <script>
+        async function adminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-pass').value;
+            const apiBase = window.location.port === "5000"
+                ? window.location.origin
+                : `${window.location.protocol === "https:" ? "https:" : "http:"}//${window.location.hostname || "localhost"}:5000`;
+
+            try {
+                const res = await fetch(`${apiBase}/admin-login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    cache: 'no-store',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    if (data.token) {
+                        const user = data.user || { email, role: 'admin', name: 'FairCart Admin' };
+                        user.token = data.token;
+                        localStorage.setItem('faircart_token', data.token);
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                    // Success! Redirect to admin dashboard
+                    window.location.href = `${apiBase}/admin`;
+                } else {
+                    alert("Invalid admin credentials");
+                }
+            } catch (err) {
+                console.error("Login failed:", err);
+                alert("Failed to connect to authentication service.");
+            }
+        }
+    </script>
+</body>
+</html>
